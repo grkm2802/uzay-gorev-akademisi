@@ -73,7 +73,7 @@
       <label class="field"><span>Adın</span><input id="teamName" maxlength="20" placeholder="Takımda görünecek ad" autocomplete="off"></label>
       <div class="entry-grid">
         <div class="entry-box"><h3>Oda kur</h3><p>Bir kod alırsın, arkadaşların katılır.</p><button id="teamCreate" class="btn">Oda kur</button></div>
-        <div class="entry-box"><h3>Odaya katıl</h3><label class="field"><span>Oda kodu</span><input id="teamCode" maxlength="4" placeholder="ABCD" autocomplete="off"></label><button id="teamJoin" class="btn">Katıl</button></div>
+        <div class="entry-box"><h3>Odaya katıl</h3><label class="field"><span>Oda kodu</span><input id="teamCode" maxlength="6" placeholder="ABCDEF" autocomplete="off"></label><button id="teamJoin" class="btn">Katıl</button></div>
         <div class="entry-box"><h3>Aynı ekranda</h3><p>Tek cihazı sırayla devredin. İnternet gerekmez.</p><button id="teamLocal" class="btn ghost">Aynı ekranda başla</button></div>
       </div>
     </div>
@@ -132,7 +132,6 @@
 
 <script src="js/data.js"></script>
 <script src="js/design.js"></script>
-<script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js';document.head.appendChild(s)"></script>
 <script src="js/craft.js"></script>
 <script src="js/sim.js"></script>
 <script src="js/team.js"></script>

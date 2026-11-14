@@ -1,4 +1,4 @@
-// Takım modu: 4 rol, gizli hedefler, çevrimiçi oda (MQTT/WebSocket aracı sunucu) ve aynı ekranda oyun.
+// Takım modu: 4 rol, gizli hedefler, çevrimiçi oda (Firebase Realtime Database) ve aynı ekranda oyun.
 // Çevrimiçi oyunda oda kurucu (host) otoritedir: herkes isteğini ona gönderir, o durumu herkese yayar.
 
 var ROLES = [
@@ -62,30 +62,45 @@ function applyPick(key, id, pid) {
   if (key === 'instruments') {
     var i = design.instruments.indexOf(id);
     if (i >= 0) design.instruments.splice(i, 1); else design.instruments.push(id);
+    // istekler farklı sırada ulaşabilir; sırayı sabitle (tüm cihazlarda aynı görünsün)
+    var order = INSTRUMENTS.map(function (x) { return x.id; });
+    design.instruments.sort(function (x, y) { return order.indexOf(x) - order.indexOf(y); });
   } else design[key] = id;
   return true;
 }
 
-// ---------- Ağ (MQTT / WebSocket üzerinden herkese açık aracı sunucu) ----------
-// Eşler arası (WebRTC) bağlantı NAT, okul ağı ve mobil veride sık sorun çıkardığı için herkes dışarıya doğru HTTPS/WebSocket ile bağlanır.
-// Oda kodu: ilk karakter sunucu numarası (1-3), sonra 5 harf. Kurucu (host) otoritedir; istekler ona gider, durumu o yayar.
-var BROKERS = ['wss://broker.hivemq.com:8884/mqtt', 'wss://broker.emqx.io:8084/mqtt', 'wss://test.mosquitto.org:8081'];
-var Net = { client: null, base: '', timers: [], lastSeen: {}, lastHost: 0 };
+// ---------- Ağ (Firebase Realtime Database: REST + SSE) ----------
+// Oda verisi kendi veritabanımızda: odalar/<6 harf>/{b,s,g,i,p}
+//   b: kurucunun işareti (sayı, 8 sn'de bir)      s: durum (JSON metni, kurucu yazar)
+//   g: kurucudan herkese olaylar (inceleme, fırlatma, kapanış)   i: oyunculardan kurucuya istekler
+//   p: oyuncu nabzı p/<kimlik> = {n: ad, t: zaman} (6 sn'de bir)
+// Herkes yalnızca dışarıya doğru HTTPS ile bağlanır (okuma SSE akışı, yazma REST). Kurucu (host) otoritedir.
+var DB_URL = 'https://uzay-gorev-akademisi-default-rtdb.firebaseio.com';
+var Net = { room: '', es: null, timers: [], lastSeen: {}, lastHost: 0, seenG: {}, handled: {}, startTs: 0, closing: false };
 var ALPHA = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
 var lastDesignJson = '';
 
 function rid(n) { var s = ''; for (var i = 0; i < n; i++) s += ALPHA[Math.floor(Math.random() * ALPHA.length)]; return s; }
 function newPid() { return 'p' + Math.random().toString(16).slice(2, 10) + Date.now().toString(36).slice(-3); }
+function rurl(path, room) { return DB_URL + '/odalar/' + (room || Net.room) + (path || '') + '.json'; }
+function dbPut(path, val) { return fetch(rurl(path), { method: 'PUT', body: JSON.stringify(val) }).catch(function () { }); }
+function dbPost(path, val) { return fetch(rurl(path), { method: 'POST', body: JSON.stringify(val) }).catch(function () { }); }
+function dbDel(path) { return fetch(rurl(path), { method: 'DELETE' }).catch(function () { }); }
+// {ok, val}: ok=false ise ağ ya da kural hatası
+function dbGet(room, path) {
+  return fetch(rurl(path, room)).then(function (r) {
+    if (!r.ok) return { ok: false, status: r.status };
+    return r.json().then(function (v) { return { ok: true, val: v }; });
+  }).catch(function () { return { ok: false, status: 0 }; });
+}
 
 function snapshot() {
   return { t: 'state', design: design, roles: TEAM.roles, players: TEAM.players, chat: TEAM.chat.slice(-40), started: TEAM.started };
 }
-function pub(topic, obj, retain) {
-  if (Net.client && Net.client.connected) Net.client.publish(Net.base + topic, obj === null ? '' : JSON.stringify(obj), { qos: 0, retain: !!retain });
-}
-function sendAll(msg) { pub('/c', { msg: msg }); }
-function bcast() { sendAll(snapshot()); afterState(true); }
-function toHost(msg) { pub('/h', { from: TEAM.myPid, msg: msg }); }
+function sendAll(msg) { dbPost('/g', JSON.stringify({ msg: msg })); }          // kurucu -> herkese olay
+function bcast() { dbPut('/s', JSON.stringify(snapshot())); afterState(true); } // kurucu -> herkese durum
+function toHost(msg) { dbPost('/i', JSON.stringify({ from: TEAM.myPid, msg: msg, ts: Date.now() })); }
+function heartbeat() { dbPut('/p/' + TEAM.myPid, JSON.stringify({ n: TEAM.myName, t: Date.now() })); }
 
 function afterState(designMayHaveChanged) {
   var j = JSON.stringify(design);
@@ -125,97 +140,126 @@ function clientHandle(msg) {
     Object.assign(design, msg.design);
     design.instruments = (msg.design.instruments || []).slice();
     TEAM.roles = msg.roles || {}; TEAM.players = msg.players || {}; TEAM.chat = msg.chat || []; TEAM.started = !!msg.started;
-    if (!TEAM.players[TEAM.myPid]) toHost({ t: 'join', name: TEAM.myName });   // oda bizi unuttuysa yeniden katıl
+    if (!TEAM.players[TEAM.myPid]) heartbeat();   // oda bizi unuttuysa nabzımızla yeniden görünürüz
     afterState(true);
   } else if (msg.t === 'submit') reviewNow();
   else if (msg.t === 'flight') startFlight(msg.res);
 }
 
 function lobbyMsg(t, isErr) { var e = document.getElementById('teamMsg'); e.textContent = t || ''; e.className = 'teammsg' + (isErr ? ' err' : ''); }
-function needMqtt() {
-  if (typeof mqtt === 'undefined') { lobbyMsg('Çevrimiçi oda için internet gerekir (bağlantı kitaplığı yüklenemedi). Aynı ekranda oynayabilirsin.', true); return false; }
-  return true;
-}
 function clearNet() {
   Net.timers.forEach(clearInterval);
-  try { if (Net.client) Net.client.end(true); } catch (e) { }
-  Net = { client: null, base: '', timers: [], lastSeen: {}, lastHost: 0 };
+  try { if (Net.es) Net.es.close(); } catch (e) { }
+  Net = { room: '', es: null, timers: [], lastSeen: {}, lastHost: 0, seenG: {}, handled: {}, startTs: 0, closing: false };
 }
 function resetTeam() {
   clearNet();
   TEAM = { on: false, mode: '', host: false, started: false, myPid: '', myName: TEAM.myName, myRole: null, code: '', roles: {}, players: {}, chat: [] };
 }
+function parseJson(s) { try { return JSON.parse(s); } catch (e) { return null; } }
 
-function connectBroker(i) {
-  return new Promise(function (resolve, reject) {
-    var settled = false;
-    var c = mqtt.connect(BROKERS[i], { connectTimeout: 6000, reconnectPeriod: 2000, keepalive: 30, clientId: 'ma-' + newPid() });
-    function fail(e) { if (!settled) { settled = true; try { c.end(true); } catch (x) { } reject(e || new Error('hata')); } }
-    c.once('connect', function () { settled = true; c.on('error', function () { }); resolve(c); });
-    c.once('error', fail);
-    setTimeout(function () { fail(new Error('zaman aşımı')); }, 8000);
-  });
+// ----- SSE olay yönlendirme -----
+function onB() { if (!TEAM.host) Net.lastHost = Date.now(); }
+function onS(v) {
+  if (TEAM.host || typeof v !== 'string') return;
+  var st = parseJson(v);
+  if (st && st.t === 'state') { Net.lastHost = Date.now(); clientHandle(st); }
 }
-// Bu odada son 25 sn içinde bir kurucu işaret yayını var mı?
-function roomExists(c, base) {
-  return new Promise(function (resolve) {
-    var found = false;
-    function onm(topic, payload) {
-      if (topic !== base + '/b') return;
-      try { var j = JSON.parse(payload.toString()); if (j && j.ts && Date.now() - j.ts < 25000) found = true; } catch (e) { }
-    }
-    c.on('message', onm);
-    c.subscribe(base + '/b', function () {
-      setTimeout(function () { c.removeListener('message', onm); c.unsubscribe(base + '/b'); resolve(found); }, 1400);
+function onG(id, v, initial) {
+  if (TEAM.host || Net.seenG[id]) return;
+  Net.seenG[id] = 1;
+  if (initial || typeof v !== 'string') return;               // bağlanmadan önceki olayları tekrar oynatma
+  var o = parseJson(v);
+  if (!o || !o.msg) return;
+  Net.lastHost = Date.now();
+  if (o.msg.t === 'closed') { lobbyMsg('Kurucu odayı kapattı.', true); resetTeam(); show('team'); renderLobby(); return; }
+  clientHandle(o.msg);
+}
+function onI(id, v) {
+  if (!TEAM.host || Net.handled[id] || typeof v !== 'string') return;
+  Net.handled[id] = 1;
+  var o = parseJson(v);
+  dbDel('/i/' + id);
+  if (!o || !o.from || !o.msg) return;
+  if (o.ts && o.ts < Net.startTs - 120000) return;            // eski kurucudan kalan istek
+  Net.lastSeen[o.from] = Date.now();
+  hostHandle({ peer: o.from }, o.msg);
+}
+function onP(pid, v) {
+  if (!TEAM.host || pid === TEAM.myPid || typeof v !== 'string') return;
+  var o = parseJson(v);
+  if (!o) return;
+  Net.lastSeen[pid] = Date.now();
+  if (!TEAM.players[pid]) { TEAM.players[pid] = String(o.n || 'Oyuncu').slice(0, 20); bcast(); }
+}
+function route(type, path, data) {
+  if (type === 'patch') {
+    Object.keys(data || {}).forEach(function (k) { route('put', (path === '/' ? '' : path) + '/' + k, data[k]); });
+    return;
+  }
+  var parts = path.split('/').filter(Boolean);
+  var each = function (obj, fn, initial) { Object.keys(obj || {}).forEach(function (k) { fn(k, obj[k], initial); }); };
+  if (parts.length === 0) {                                    // tüm oda nesnesi (bağlanınca ve yeniden bağlanınca)
+    var o = data || {};
+    if (o.b !== undefined) onB(o.b);
+    if (o.s !== undefined) onS(o.s);
+    each(o.g, onG, true); each(o.i, onI); each(o.p, onP);
+    return;
+  }
+  var k = parts[0];
+  if (k === 'b') onB(data);
+  else if (k === 's') onS(data);
+  else if (k === 'g') { if (parts.length === 1) each(data, onG, false); else onG(parts[1], data, false); }
+  else if (k === 'i') { if (parts.length === 1) each(data, onI); else onI(parts[1], data); }
+  else if (k === 'p') { if (parts.length === 1) each(data, onP); else onP(parts[1], data); }
+}
+function openStream() {
+  var es = new EventSource(rurl(''));
+  Net.es = es;
+  ['put', 'patch'].forEach(function (type) {
+    es.addEventListener(type, function (e) {
+      var o = parseJson(e.data);
+      if (o && typeof o.path === 'string') route(type, o.path, o.data);
     });
   });
 }
-function parseMsg(payload) { try { return JSON.parse(payload.toString()); } catch (e) { return null; } }
 
 async function createRoom(name) {
-  if (!needMqtt()) return;
   resetTeam(); TEAM.myName = name;
-  var c = null, bi = -1;
-  for (var i = 0; i < BROKERS.length && !c; i++) {
-    lobbyMsg('Sunucuya bağlanılıyor (' + (i + 1) + '/' + BROKERS.length + ')…');
-    try { c = await connectBroker(i); bi = i; } catch (e) { }
-  }
-  if (!c) { lobbyMsg('Hiçbir mesaj sunucusuna ulaşılamadı. İnternet bağlantını ya da ağın engelini kontrol et. Aynı ekranda oynayabilirsin.', true); return; }
+  lobbyMsg('Veritabanına bağlanılıyor…');
   var code = null;
-  for (var t = 0; t < 6 && !code; t++) {
-    var cand = (bi + 1) + rid(5);
-    var exists = await roomExists(c, 'misyonakademisi/v1/' + cand);
-    if (!exists) code = cand;
+  for (var t = 0; t < 8 && !code; t++) {
+    var cand = rid(6);
+    var r = await dbGet(cand, '/b');
+    if (!r.ok) {
+      lobbyMsg('Veritabanına ulaşılamadı (' + (r.status || 'ağ') + '). İnternet bağlantını ya da ağın engelini kontrol et. Aynı ekranda oynayabilirsin.', true);
+      return;
+    }
+    if (r.val === null || Date.now() - r.val > 600000) code = cand;   // boş ya da 10 dakikadan eski (terk edilmiş) oda
   }
-  if (!code) { c.end(true); lobbyMsg('Boş oda kodu bulunamadı, tekrar dene.', true); return; }
+  if (!code) { lobbyMsg('Boş oda kodu bulunamadı, tekrar dene.', true); return; }
 
-  Net.client = c; Net.base = 'misyonakademisi/v1/' + code;
+  Net.room = code; Net.startTs = Date.now();
+  await fetch(rurl(''), { method: 'DELETE' }).catch(function () { });  // eski artıkları temizle
   TEAM.on = true; TEAM.mode = 'online'; TEAM.host = true; TEAM.code = code; TEAM.myPid = newPid();
   TEAM.players[TEAM.myPid] = name;
-  c.on('message', function (topic, payload) {
-    if (topic !== Net.base + '/h') return;
-    var o = parseMsg(payload);
-    if (!o || !o.from || !o.msg) return;
-    Net.lastSeen[o.from] = Date.now();
-    hostHandle({ peer: o.from }, o.msg);
-  });
-  c.subscribe(Net.base + '/h');
-  function beat() {
-    pub('/b', { ts: Date.now() }, true);
-    sendAll({ t: 'beat' });
+  await dbPut('/b', Date.now());
+  await dbPut('/s', JSON.stringify(snapshot()));
+  openStream();
+  Net.timers.push(setInterval(function () {
+    dbPut('/b', Date.now());
     var now = Date.now(), changed = false;
     Object.keys(TEAM.players).forEach(function (pid) {
       if (pid !== TEAM.myPid && Net.lastSeen[pid] && now - Net.lastSeen[pid] > 25000) {
         delete TEAM.players[pid]; delete Net.lastSeen[pid]; changed = true;
         Object.keys(TEAM.roles).forEach(function (k) { if (TEAM.roles[k] === pid) delete TEAM.roles[k]; });
+        dbDel('/p/' + pid);
       }
     });
     if (changed) bcast();
-  }
-  beat();
-  Net.timers.push(setInterval(beat, 8000));
+  }, 8000));
   window.addEventListener('beforeunload', function () {
-    if (TEAM.on && TEAM.host && Net.client && Net.client.connected) { sendAll({ t: 'closed' }); pub('/b', null, true); }
+    if (TEAM.on && TEAM.host && Net.room) fetch(rurl(''), { method: 'DELETE', keepalive: true }).catch(function () { });
   });
   lastDesignJson = JSON.stringify(design);
   lobbyMsg('');
@@ -223,44 +267,32 @@ async function createRoom(name) {
 }
 
 async function joinRoom(code, name) {
-  if (!needMqtt()) return;
-  code = String(code || '').toUpperCase().replace(/[^0-9A-Z]/g, '');
-  if (!/^[1-9][A-Z]{5}$/.test(code) || +code[0] > BROKERS.length) { lobbyMsg('Oda kodu 6 karakterdir (örnek: 1ABCDE).', true); return; }
+  code = String(code || '').toUpperCase().replace(/[^A-Z]/g, '');
+  if (!/^[A-Z]{6}$/.test(code)) { lobbyMsg('Oda kodu 6 harftir (örnek: ABCDEF).', true); return; }
   resetTeam(); TEAM.myName = name;
-  var bi = +code[0] - 1, base = 'misyonakademisi/v1/' + code;
-  lobbyMsg('Sunucuya bağlanılıyor…');
-  var c;
-  try { c = await connectBroker(bi); }
-  catch (e) { lobbyMsg('Mesaj sunucusuna ulaşılamadı (' + (e.message || 'hata') + '). Ağın engelliyor olabilir. Başka bir ağ (örneğin mobil veri) dene.', true); return; }
   lobbyMsg('Oda aranıyor…');
-  var exists = await roomExists(c, base);
-  if (!exists) { c.end(true); lobbyMsg('Bu kodla açık bir oda bulunamadı. Kodu kontrol et ve kurucunun odayı açık tuttuğundan emin ol.', true); return; }
+  var r = await dbGet(code, '/b');
+  if (!r.ok) { lobbyMsg('Veritabanına ulaşılamadı (' + (r.status || 'ağ') + '). Ağın engelliyor olabilir. Başka bir ağ (örneğin mobil veri) dene.', true); return; }
+  if (r.val === null) { lobbyMsg('Bu kodla açık bir oda bulunamadı. Kodu kontrol et ve kurucunun odayı açık tuttuğundan emin ol.', true); return; }
 
-  Net.client = c; Net.base = base;
+  Net.room = code; Net.lastHost = Date.now();
   TEAM.on = true; TEAM.mode = 'online'; TEAM.host = false; TEAM.code = code; TEAM.myPid = newPid();
-  Net.lastHost = Date.now();
-  c.on('message', function (topic, payload) {
-    if (topic !== Net.base + '/c') return;
-    var o = parseMsg(payload);
-    if (!o || !o.msg) return;
-    Net.lastHost = Date.now();
-    if (o.msg.t === 'beat') return;
-    if (o.msg.t === 'closed') { lobbyMsg('Kurucu odayı kapattı.', true); resetTeam(); show('team'); renderLobby(); return; }
-    clientHandle(o.msg);
-  });
-  c.subscribe(base + '/c', function () { toHost({ t: 'join', name: name }); });
-  // odaya girişin onaylanmasını (durum mesajını) bekle
-  var ok = false;
-  for (var i = 0; i < 24 && !ok; i++) {
-    await new Promise(function (r) { setTimeout(r, 250); });
+  await dbPut('/p/' + TEAM.myPid, JSON.stringify({ n: name, t: Date.now() }));
+  openStream();
+  var ok = false;                                              // kurucunun bizi odaya aldığını bekle
+  for (var i = 0; i < 40 && !ok; i++) {
+    await new Promise(function (res) { setTimeout(res, 250); });
     ok = !!TEAM.players[TEAM.myPid];
-    if (!ok && i % 8 === 7) toHost({ t: 'join', name: name });
+    if (!ok && i % 12 === 11) heartbeat();
   }
   if (!ok) { resetTeam(); lobbyMsg('Odaya girilemedi (kurucudan yanıt gelmedi). Tekrar dene.', true); return; }
   Net.timers.push(setInterval(function () {
-    toHost({ t: 'ping' });
-    if (Date.now() - Net.lastHost > 25000) { lobbyMsg('Odayla bağlantı koptu.', true); resetTeam(); show('team'); renderLobby(); }
+    heartbeat();
+    if (Date.now() - Net.lastHost > 30000) { lobbyMsg('Odayla bağlantı koptu.', true); resetTeam(); show('team'); renderLobby(); }
   }, 6000));
+  window.addEventListener('beforeunload', function () {
+    if (TEAM.on && !TEAM.host && Net.room) fetch(rurl('/p/' + TEAM.myPid), { method: 'DELETE', keepalive: true }).catch(function () { });
+  });
   lastDesignJson = JSON.stringify(design);
   lobbyMsg('');
   renderLobby();
@@ -275,7 +307,7 @@ function startLocal(name) {
 
 // ---------- Eylemler ----------
 function teamPick(key, id) {
-  if (TEAM.mode === 'online' && !TEAM.host) { toHost({ t: 'pick', key: key, id: id }); return; }
+  if (TEAM.mode === 'online' && !TEAM.host) { toHost({ t: 'pick', key: key, id: id }); applyPick(key, id, TEAM.myPid); render(); return; }   // kendi seçimini anında göster, kurucunun durumu sonra doğrular
   if (applyPick(key, id, TEAM.myPid)) { if (TEAM.mode === 'online') bcast(); else render(); }
 }
 function teamSubmit() {
@@ -348,7 +380,7 @@ function renderLobby() {
     html += '</div>';
   });
   html += '</div>';
-  if (TEAM.mode === 'online') html += '<p class="hint">Boş kalan rolleri herkes düzenleyebilir. Her rolün gizli bir hedefi var. Hedefler birbiriyle çatışabilir, o yüzden konuşun. Oda, herkese açık bir mesaj sunucusundan geçer: sohbete kişisel bilgi yazma.</p>';
+  if (TEAM.mode === 'online') html += '<p class="hint">Boş kalan rolleri herkes düzenleyebilir. Her rolün gizli bir hedefi var. Hedefler birbiriyle çatışabilir, o yüzden konuşun. Oda veritabanında tutulur: sohbete kişisel bilgi yazma.</p>';
   html += TEAM.host ? '<button id="teamStart" class="btn">Takımı başlat</button>' : '<p class="hint">Kurucunun takımı başlatmasını bekle…</p>';
   room.innerHTML = html;
   var st = document.getElementById('teamStart');
