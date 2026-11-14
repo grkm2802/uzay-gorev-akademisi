@@ -49,8 +49,8 @@ HTML/CSS/JS, derleme yok (dosyaları doğrudan açın veya GitHub Pages/Netlify 
 - DURUM: TAMAMLANDI. Tam render alındı (480 kare, 48 örnek, ~35 dk), `assets/intro.mp4` yerinde (5,4 MB, 20 sn, 1280x720). Sitede oynuyor ve bitince brifinge geçiyor (doğrulandı). Yerel `python -m http.server` Range istekleri desteklemediği için sarma (seek) denemesi başa dönebilir; GitHub Pages/Netlify'da sorun olmaz. Telefonda dikey ekranda video `object-fit:cover` ile kırpılır.
 
 ## Yayın (GitHub Pages)
-- Depo: https://github.com/grkm2802/misyon-akademisi (herkese açık; Pages için gerekli)
-- Canlı site: https://grkm2802.github.io/misyon-akademisi/ (main dalı, kök klasör; derleme yok)
+- Depo: https://github.com/grkm2802/uzay-gorev-akademisi (herkese açık; Pages için gerekli)
+- Canlı site: https://grkm2802.github.io/uzay-gorev-akademisi/ (main dalı, kök klasör; derleme yok)
 - Güncellemek için: değişiklikleri yap, sonra `git add -A`, `git commit -m "..."`, `git push`. Pages birkaç dakika içinde yeniler.
 - `.gitignore` dışında tutulanlar: `.claude/`, `*.blend`, ilerleme kayıtları, `assets/intro_blender.mp4` ve `assets/intro_site-videosu.mp4` (video yedekleri). Siteye yalnızca `assets/intro.mp4` girer. `versions/` depoda (bulutta yedek olsun diye) ve canlı sitede `/versions/...` altında açılır.
 - Çevrimiçi takım odası PeerJS'in herkese açık aracısını kullanır (HTTPS'te çalışır). Yazı tipleri Google Fonts'tan gelir.
