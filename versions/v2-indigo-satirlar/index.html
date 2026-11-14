@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Misyon Akademisi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="in-intro">
+
+<header id="siteHeader">
+  <div class="bar-in">
+    <strong class="brand">Misyon Akademisi</strong>
+    <span class="crumb">Görev 1: Öğrenci CubeSat'i</span>
+  </div>
+</header>
+
+<!-- 1) GİRİŞ VİDEOSU -->
+<section id="intro" class="screen active">
+  <video id="introVideo" playsinline preload="auto" src="assets/intro.mp4"></video>
+
+  <!-- Video dosyası yoksa gösterilen yedek -->
+  <div id="introFallback" class="center hidden">
+    <h1>Misyon Akademisi</h1>
+    <p>Giriş videosu henüz eklenmedi.<br>assets/intro.mp4 dosyasını koy.</p>
+  </div>
+
+  <!-- Tarayıcı sesli oynatmayı tıklama olmadan engeller -->
+  <div id="startOverlay" class="center">
+    <h1>Misyon Akademisi</h1>
+    <p>Uzay aracı tasarlayan bir stajyer mühendisin ilk günü.</p>
+    <button id="startBtn" class="btn">Başla</button>
+  </div>
+
+  <button id="skipBtn" class="btn ghost skip hidden">Atla</button>
+</section>
+
+<!-- 2) GÖREV BRİFİNGİ -->
+<section id="brief" class="screen">
+  <div class="hero">
+    <div class="wrap brief">
+      <div class="brief-text">
+        <h1>Öğrenci CubeSat'i</h1>
+        <div class="bubble">
+          <span class="badge">Prof.</span>
+          <p id="dialogText"></p>
+        </div>
+        <button id="toDesign" class="btn sun">Tasarıma başla</button>
+      </div>
+      <div id="craftBrief" class="craft assemble"></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="ticket">
+      <h2>Görev kuralların</h2>
+      <p class="rules">Bütçen <mark>2,5 milyon $</mark>. Uydun en fazla <mark>12 kg</mark> olabilir.
+        En az <mark>40 bilim puanı</mark> topla ve <mark>6 ay</mark> dayansın.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3) TASARIM ODASI -->
+<section id="design" class="screen">
+  <div class="wrap wide">
+    <div class="design-head">
+      <div>
+        <h1>Tasarım odası</h1>
+        <p class="lead">Seç, şemayı izle. Kaynakların bitmesin.</p>
+      </div>
+      <button id="backBrief" class="btn ghost">Brifinge dön</button>
+    </div>
+    <div class="layout">
+      <div id="options"></div>
+      <aside id="rail">
+        <div id="craftDesign" class="craft"></div>
+        <div id="side"></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<footer id="siteFooter">NASA Space Apps Challenge 2026 için yapıldı.</footer>
+
+<script src="js/data.js"></script>
+<script src="js/design.js"></script>
+<script src="js/craft.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

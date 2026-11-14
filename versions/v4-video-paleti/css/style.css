@@ -1,0 +1,308 @@
+/* Video paleti: kömür-mavi zemin, soğuk açık kartlar, hologram turkuazı ve çelik mavisi vurgu.
+   Başlık Bricolage Grotesque + metin Inter. Önceki indigo/hardal/mor hâl: versions/v3-indigo-takim */
+:root{
+  --page:#232A33; --band:#171C23; --edge:#0A0D11;
+  --card:#E8EEF4; --card2:#D3DDE6; --ink:#131A22; --muted:#566472; --muted-l:#A9B8C6;
+  --mustard:#5FC9F2; --mustard-dark:#2B8BB0; --violet:#356FA8; --violet-dark:#214B78;
+  --bad:#D93B45; --ok:#1B8A57;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif; --body:"Inter","Segoe UI",system-ui,sans-serif;
+  --lift:0 4px 0 var(--edge);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--page);color:#fff;font-family:var(--body);font-size:17px;line-height:1.55;
+  display:flex;flex-direction:column;min-height:100vh}
+h1,h2,h3{margin:0;font-family:var(--display);font-weight:800;line-height:1.05;letter-spacing:-.025em}
+h1{font-size:clamp(40px,6.4vw,76px)}
+h2{font-size:28px}
+h3{font-size:28px}
+p{margin:0}
+
+/* Üst çubuk */
+#siteHeader{background:var(--band);border-bottom:3px solid var(--edge)}
+.bar-in{max-width:1180px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-family:var(--display);font-size:21px;font-weight:800;color:var(--mustard)}
+.crumb{color:var(--muted-l);font-weight:600;font-size:15px}
+#siteFooter{margin-top:auto;padding:28px 20px;font-size:14px;color:var(--muted-l);text-align:center}
+body.in-intro #siteHeader,body.in-intro #siteFooter{display:none}
+
+.screen{display:none;flex:1}
+.screen.active{display:block}
+.hidden{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding:44px 20px 64px}
+
+/* Giriş (video üstünde) */
+#intro{background:#000;color:#fff;position:relative;min-height:100vh}
+#introVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:20px;background:rgba(14,18,23,.88)}
+.center h1{margin-bottom:12px}
+.center p{margin-bottom:28px;color:#C9D6E0;max-width:440px;font-size:19px}
+.skip{position:absolute;right:16px;bottom:16px}
+
+/* Butonlar */
+.btn{background:var(--mustard);color:var(--ink);border:3px solid var(--edge);border-radius:8px;padding:11px 22px;font-family:var(--display);
+  font-size:17px;font-weight:700;cursor:pointer;box-shadow:var(--lift);transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--edge)}
+.btn:active{transform:translateY(4px);box-shadow:0 0 0 var(--edge)}
+.btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.55);box-shadow:0 4px 0 rgba(5,7,10,.55)}
+.btn.ghost:hover{background:rgba(255,255,255,.1);border-color:#fff;box-shadow:0 6px 0 rgba(5,7,10,.55)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+
+/* Brifing */
+.hero{background:var(--band);border-bottom:3px solid var(--edge)}
+.brief{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:48px;align-items:center;padding-top:48px;padding-bottom:56px}
+.brief h1{margin-bottom:28px}
+.bubble{position:relative;display:flex;gap:14px;align-items:flex-start;background:var(--card);color:var(--ink);
+  border:3px solid var(--edge);border-radius:12px;box-shadow:var(--lift);padding:18px 20px;margin-bottom:28px}
+.bubble::before{content:"";position:absolute;left:34px;top:-14px;width:22px;height:22px;background:var(--card);
+  border-left:3px solid var(--edge);border-top:3px solid var(--edge);transform:rotate(45deg)}
+.badge{flex:none;background:var(--violet);color:#fff;border-radius:10px;padding:4px 12px;font-family:var(--display);font-weight:700;font-size:16px}
+.bubble p{min-height:6em;font-size:17px;font-weight:500;line-height:1.6}
+.ticket{background:var(--card);color:var(--ink);border:3px solid var(--edge);border-radius:12px;box-shadow:var(--lift);padding:26px 28px;max-width:760px}
+.ticket h2{margin-bottom:12px}
+.rules{font-size:20px;line-height:1.7;font-weight:500}
+.rules mark{background:none;color:var(--ink);font-weight:800;box-shadow:inset 0 -.5em 0 var(--mustard)}
+
+/* Uydu şeması: akşam gökyüzü, Dünya'nın kıyısı ve soluk bir ay */
+.craft{border:3px solid var(--edge);border-radius:12px;box-shadow:var(--lift);padding:16px 16px 12px;
+  background:radial-gradient(circle at 88% 16%,#F4F3FF 0 22px,transparent 23px),
+             radial-gradient(1.5px 1.5px at 12% 22%,#fff,transparent),radial-gradient(1px 1px at 30% 12%,#e2e3ff,transparent),
+             radial-gradient(1.5px 1.5px at 52% 30%,#fff,transparent),radial-gradient(1px 1px at 70% 16%,#e2e3ff,transparent),
+             radial-gradient(1px 1px at 22% 48%,#fff,transparent),radial-gradient(1.5px 1.5px at 92% 52%,#fff,transparent),
+             radial-gradient(ellipse 165% 46% at 50% 124%,#2E9BC4 0 98%,transparent 100%),
+             radial-gradient(ellipse 168% 50% at 50% 126%,#7FD6E6 0 98%,transparent 100%),
+             linear-gradient(#2F4561,#101821)}
+.craft svg{display:block;width:100%;height:auto}
+.craft-cap{margin-top:6px;font-weight:700;font-size:15px;min-height:2.9em;background:rgba(15,19,24,.88);color:#fff;border-radius:10px;padding:4px 10px}
+.craft .body{fill:var(--card);stroke:var(--edge);stroke-width:3}
+.craft .panel{stroke:var(--edge);stroke-width:3}
+.craft .panel.bad{stroke:var(--bad);stroke-width:5}
+.craft .ant{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round}
+.craft .ant circle{fill:var(--mustard)}
+.craft .adcs{fill:none;stroke:var(--edge);stroke-width:2.5}
+.craft .bat{fill:var(--mustard);stroke:var(--edge);stroke-width:3}
+.craft .chip rect{fill:var(--edge);rx:4}
+.craft .chip text{fill:var(--mustard);font-size:9px;font-weight:800;font-family:var(--body)}
+.craft .chip.over rect{fill:var(--bad)}
+.craft .chip.over text{fill:#fff}
+.craft .dim{fill:#fff;font-size:12px;font-weight:700;font-family:var(--body)}
+.craft .dimline{stroke:#fff;stroke-width:1.5}
+/* seçim değiştikçe parçalar kayarak/belirerek yer değiştirir */
+.craft [data-p]{transition:opacity .35s ease,transform .35s ease,x .35s ease,y .35s ease,width .35s ease,height .35s ease}
+.craft [data-p="ins"],.craft [data-p="dim"],.craft [data-p="dimline"]{transition:none}
+/* sayfadaki tek açılış anı: brifingte parçalar sırayla belirir */
+@keyframes appear{from{opacity:0}to{opacity:1}}
+.assemble [data-p="body"]{animation:appear .5s ease backwards}
+.assemble [data-p="pl"],.assemble [data-p="pr"]{animation:appear .5s ease .35s backwards}
+.assemble [data-p="uhf"],.assemble [data-p="amag"],.assemble [data-p="bat"]{animation:appear .5s ease .7s backwards}
+.assemble [data-p="dim"],.assemble [data-p="dimline"]{animation:appear .5s ease 1s backwards}
+
+/* Tasarım odası */
+.design-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:30px}
+.lead{margin-top:10px;color:var(--muted-l);font-size:18px;font-weight:500}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:40px;align-items:start}
+
+.stages{display:flex;gap:10px;margin-bottom:20px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:none}
+.stages::-webkit-scrollbar{display:none}
+.step{flex:none;background:var(--card);border:3px solid var(--edge);border-radius:8px;padding:9px 20px;font-family:var(--display);font-size:18px;
+  font-weight:700;color:var(--ink);cursor:pointer;box-shadow:var(--lift);transition:transform .12s,box-shadow .12s}
+.step:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--edge)}
+.step.cur{background:var(--violet);color:#fff}
+.stage-intro{max-width:60ch;margin-bottom:26px;font-size:17px;color:var(--muted-l);font-weight:500}
+.group{margin-bottom:34px}
+.help{margin:6px 0 16px;color:var(--muted-l);max-width:62ch}
+
+/* Seçenekler: geniş yatay satırlar. Solda ad ve açıklama, sağda hizalı değerler */
+.cards{display:flex;flex-direction:column;gap:10px}
+.card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 28px;align-items:center;text-align:left;background:var(--card);color:var(--ink);
+  border:2px solid var(--edge);border-left:8px solid var(--card2);border-radius:8px;padding:14px 18px;font:inherit;cursor:pointer;position:relative;
+  transition:background .12s,border-color .12s,transform .12s}
+.card:hover{border-left-color:var(--violet);transform:translateX(3px)}
+.card .main{display:flex;flex-direction:column;gap:3px;min-width:0}
+.card b{font-family:var(--display);font-size:20px;font-weight:700;line-height:1.2;letter-spacing:-.01em}
+.card em{font-style:normal;font-size:14px;color:var(--muted);font-weight:500}
+.card .stats{display:flex;gap:22px;justify-content:flex-end;flex-wrap:wrap}
+.card .stat{display:flex;flex-direction:column;align-items:flex-end;min-width:54px}
+.card .stat strong{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.card .stat u{text-decoration:none;font-size:12px;font-weight:500;color:var(--muted)}
+.card .stat small{font-size:12px;color:var(--muted);font-weight:500}
+.card.sel{background:#D6F0FB;border-left-color:var(--mustard)}
+.card.sel::after{content:"Seçili";position:absolute;top:-10px;right:14px;background:var(--mustard);color:var(--ink);border:2px solid var(--edge);
+  border-radius:6px;padding:0 8px;font-size:12px;font-weight:700;line-height:18px}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:6px}
+.hint{color:var(--muted-l);font-size:15px;font-weight:500}
+
+/* Sağ ray */
+#rail{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;display:flex;flex-direction:column;gap:22px;padding:4px 6px 10px 2px}
+#side{background:var(--card);color:var(--ink);border:3px solid var(--edge);border-radius:12px;box-shadow:var(--lift);padding:20px}
+#side h3{font-size:22px;margin-bottom:14px}
+#side h3.mt{margin-top:24px}
+.bar{margin-bottom:14px}
+.bar-top{display:flex;justify-content:space-between;gap:8px;font-size:15px;margin-bottom:5px;font-weight:700}
+.bar-top span{color:var(--muted)}
+.bar-top b{font-weight:800}
+.bar-top .bad{color:var(--bad)}
+.track{height:14px;background:var(--card2);border:2px solid var(--edge);border-radius:999px;overflow:hidden}
+.fill{height:100%;background:var(--violet);border-radius:999px}
+.fill.over{background:var(--bad)}
+.checks{list-style:none;margin:0 0 18px;padding:0}
+.checks li{padding:9px 0;border-bottom:2px dashed #BCCAD6;font-size:15px}
+.checks li:last-child{border-bottom:0}
+.ck{display:flex;justify-content:space-between;gap:8px;font-weight:800}
+.ck b{font-size:14px;font-weight:800}
+.checks li.ok .ck b{color:var(--ok)}
+.checks li.no .ck b{color:var(--bad)}
+.checks li small{color:var(--muted);font-size:14px;font-weight:600}
+.checks li p{margin-top:5px;font-size:14px;color:var(--bad);font-weight:700}
+.review{margin-top:14px;padding:12px 14px;font-size:15px;border:3px solid var(--edge);border-radius:8px;font-weight:600}
+.review p{margin-top:4px;font-weight:600}
+.review.good{background:#D6F3E4}
+.review.badr{background:#FFDCDD}
+#side .btn{width:100%}
+
+:focus-visible{outline:3px solid var(--mustard);outline-offset:3px}
+#side :focus-visible,.card:focus-visible,.step:focus-visible{outline-color:var(--violet)}
+@media(max-width:960px){
+  .brief{grid-template-columns:minmax(0,1fr);gap:30px}
+  .layout{grid-template-columns:minmax(0,1fr);gap:28px}
+  #rail{position:static;max-height:none;overflow:visible}
+}
+@media(max-width:700px){.card{grid-template-columns:minmax(0,1fr)}.card .stats{justify-content:flex-start}.card .stat{align-items:flex-start}}
+@media(max-width:520px){.wrap{padding:28px 16px 44px}.crumb{display:none}.brief{padding-top:32px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== Fırlatma, görev günlüğü ve rapor ===== */
+.head-actions{display:flex;gap:10px;flex-wrap:wrap}
+.flight-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:start}
+.flight-left{position:sticky;top:16px}
+.launch{padding:12px}
+.launch svg{display:block;width:100%;height:auto}
+.launch .pad rect{fill:var(--edge)}
+.launch .rocket{transform-box:fill-box}
+.launch .flame{opacity:0}
+.launch.lift .flame{opacity:1;animation:flick .12s infinite alternate}
+.launch.lift .rocket{animation:lift 3s cubic-bezier(.55,0,.95,.55) forwards}
+.launch .smoke circle{fill:#E8EAFB;opacity:0;transform-box:fill-box;transform-origin:center}
+.launch.lift .smoke circle{animation:puff 3s ease-out forwards}
+.launch.lift .smoke circle:nth-child(2){animation-delay:.15s}
+.launch.lift .smoke circle:nth-child(3){animation-delay:.3s}
+@keyframes lift{from{transform:translateY(0)}to{transform:translateY(-330px)}}
+@keyframes flick{from{transform:scaleY(.82)}to{transform:scaleY(1.15)}}
+@keyframes puff{0%{opacity:.9;transform:scale(.4)}100%{opacity:0;transform:scale(3.2)}}
+
+.flightlog{list-style:none;margin:0;padding:6px 20px;background:var(--card);color:var(--ink);border:3px solid var(--edge);border-radius:12px;box-shadow:var(--lift);min-height:120px}
+.flightlog:empty{display:none}
+.flightlog li{padding:14px 0 14px 14px;border-bottom:2px dashed #BCCAD6;border-left:5px solid var(--violet);margin:10px 0;border-radius:2px}
+.flightlog li:last-child{border-bottom:0}
+.flightlog li.warn{border-left-color:var(--mustard)}
+.flightlog li.no{border-left-color:var(--bad)}
+.flightlog .ml{display:flex;justify-content:space-between;gap:10px;font-family:var(--display);font-weight:700}
+.flightlog .ml span{font-family:var(--body);font-weight:600;font-size:14px;color:var(--muted)}
+.flightlog p{margin:2px 0 0;font-size:15px}
+.flightlog .ev{margin-top:8px;padding:10px 12px;background:var(--card2);border-radius:8px}
+.flightlog .ev em{font-style:normal;font-weight:700;font-size:14px}
+.flightlog .ev p{font-size:14px}
+
+.report{margin-top:36px;background:var(--card);color:var(--ink);border:3px solid var(--edge);border-radius:12px;box-shadow:var(--lift);padding:28px 30px}
+.report h2{font-size:30px;margin-bottom:16px}
+.report h3{font-size:20px;margin:26px 0 10px}
+.verdict{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;padding:14px 16px;border:3px solid var(--edge);border-radius:8px}
+.verdict b{font-family:var(--display);font-size:22px}
+.verdict.good{background:#D6F3E4}
+.verdict.badr{background:#FFDCDD}
+.scores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:20px}
+.sc-top{display:flex;justify-content:space-between;font-weight:700;margin-bottom:5px}
+.why,.tips{margin:0;padding:0;list-style:none}
+.why li{padding:10px 0 10px 14px;border-left:5px solid var(--violet);margin-bottom:10px;background:var(--card2);border-radius:2px}
+.why li.no{border-left-color:var(--bad)}
+.why li p,.tips li{font-size:15px}
+.why li b{font-size:15px}
+.tips li{padding:6px 0 6px 16px;position:relative}
+.tips li::before{content:"";position:absolute;left:0;top:14px;width:8px;height:8px;background:var(--mustard);border:2px solid var(--edge)}
+.similar{margin-top:18px;padding:12px 14px;background:var(--card2);border-radius:8px}
+.mentor{margin-top:18px;font-size:17px}
+.mentor b{background:var(--violet);color:#fff;border-radius:8px;padding:2px 10px;margin-right:6px;font-family:var(--display);font-size:14px}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.report .btn.ghost{color:var(--ink);border-color:var(--edge);background:transparent;box-shadow:0 4px 0 var(--edge)}
+.report .btn.ghost:hover{background:var(--card2)}
+@media(max-width:960px){.flight-grid{grid-template-columns:minmax(0,1fr)}.flight-left{position:static}.scores{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:520px){.report{padding:20px 18px}}
+
+.flight-grid.solo{grid-template-columns:minmax(0,1fr)}
+.flight-grid.solo .flight-left{position:static}
+.flight-grid.solo .launch svg{max-height:62vh}
+
+/* ===== Takım modu ===== */
+.brief-actions{display:flex;gap:12px;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:6px;font-weight:600;margin-bottom:16px}
+.field span{font-size:15px;color:var(--muted-l)}
+.field input{font:inherit;font-size:17px;padding:11px 14px;border:3px solid var(--edge);border-radius:8px;background:var(--card);color:var(--ink);max-width:340px}
+.field input:focus-visible{outline:3px solid var(--mustard)}
+.teammsg{min-height:1.5em;margin:6px 0 14px;font-weight:600;color:var(--mustard)}
+.teammsg.err{color:#FFB3B8}
+.entry-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:6px}
+.entry-box{background:var(--card);color:var(--ink);border:3px solid var(--edge);border-radius:12px;box-shadow:var(--lift);padding:20px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.entry-box h3{font-size:22px}
+.entry-box p{font-size:15px;color:var(--muted)}
+.entry-box .field{margin:0}
+.entry-box .field input{max-width:100%;width:100%}
+.entry-box .field span{color:var(--muted)}
+.entry-box .btn.ghost{color:var(--ink);border-color:var(--edge);background:transparent;box-shadow:0 4px 0 var(--edge)}
+.roomcode{display:flex;flex-direction:column;gap:4px;margin:6px 0 22px}
+.roomcode span{font-size:15px;color:var(--muted-l)}
+.roomcode b{font-family:var(--display);font-size:56px;letter-spacing:.12em;color:var(--mustard);line-height:1}
+.roomcode small{color:var(--muted-l);font-size:15px}
+#teamRoom h3{margin:18px 0 10px;font-size:22px}
+.players{list-style:none;margin:0 0 6px;padding:0;display:flex;gap:10px;flex-wrap:wrap}
+.players li{background:var(--card);color:var(--ink);border:3px solid var(--edge);border-radius:8px;padding:6px 14px;font-weight:600}
+.rolegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.rolecard{background:var(--card);color:var(--ink);border:3px solid var(--edge);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.rolecard.mine{background:#D6F0FB}
+.rolecard b{font-family:var(--display);font-size:20px}
+.rolecard p{font-size:15px}
+.rolecard .rg{color:var(--muted);font-size:14px}
+.rolecard .goal{font-weight:700;background:var(--card2);padding:8px 10px;border-radius:8px}
+.rolecard .taken{font-weight:700;color:var(--violet)}
+#teamStart{margin-top:24px}
+#teamRoom .hint{margin-top:14px}
+
+.teambar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:-6px 0 22px}
+.teamnote{font-weight:600;color:var(--muted-l)}
+.chip{display:flex;flex-direction:column;background:var(--card);color:var(--ink);border:3px solid var(--edge);border-radius:8px;padding:6px 14px;font:inherit;text-align:left}
+.chip b{font-size:15px;font-family:var(--display)}
+.chip small{font-size:13px;color:var(--muted)}
+.chip.mine{background:var(--mustard)}
+.chip.mine small{color:#06303F}
+button.chip{cursor:pointer;box-shadow:var(--lift)}
+button.chip:hover{transform:translateY(-2px)}
+
+.group .owner{margin:4px 0 4px;font-size:15px;font-weight:600;color:var(--mustard)}
+.group .owner.locked{color:var(--muted-l)}
+.card[data-locked]{opacity:.55;cursor:not-allowed}
+.card[data-locked]:hover{transform:none;border-left-color:var(--card2)}
+
+#teamPanel{display:flex;flex-direction:column;gap:18px}
+.goalcard{background:var(--card);color:var(--ink);border:3px solid var(--edge);border-radius:12px;box-shadow:var(--lift);padding:16px 18px;border-left-width:8px}
+.goalcard.ok{border-left-color:var(--ok)}
+.goalcard.no{border-left-color:var(--bad)}
+.goalcard b{font-family:var(--display)}
+.goalcard p{margin:4px 0 6px;font-size:15px}
+.goalcard span{font-weight:700;font-size:14px}
+.goalcard.ok span{color:var(--ok)}
+.goalcard.no span{color:var(--bad)}
+.chat{background:var(--card);color:var(--ink);border:3px solid var(--edge);border-radius:12px;box-shadow:var(--lift);padding:16px 18px}
+.chat h3{font-size:18px;margin-bottom:10px}
+.chat ul{list-style:none;margin:0 0 12px;padding:0;max-height:200px;overflow:auto;font-size:15px}
+.chat li{padding:4px 0}
+.chat form{display:flex;gap:8px}
+.chat input{flex:1;min-width:0;font:inherit;padding:8px 12px;border:3px solid var(--edge);border-radius:8px;background:#fff;color:var(--ink)}
+.chat .btn{padding:8px 16px;font-size:14px}
+
+.teamgoals{margin:0;padding:0;list-style:none}
+.teamgoals li{padding:10px 0 10px 14px;border-left:5px solid var(--ok);margin-bottom:10px;background:var(--card2);border-radius:2px}
+.teamgoals li.no{border-left-color:var(--bad)}
+.teamgoals li b{font-size:15px}
+.teamgoals li p{font-size:15px}
+
+@media(max-width:960px){.entry-grid{grid-template-columns:minmax(0,1fr)}.roomcode b{font-size:44px}}

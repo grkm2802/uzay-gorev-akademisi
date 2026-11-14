@@ -1,0 +1,17 @@
+# Yerel araç ayarları
+.claude/
+
+# Blender: büyük sahne dosyaları ve çalışma kayıtları (betikler depoda kalır)
+*.blend
+*.blend1
+blender/progress.log
+blender/render_output.txt
+
+# Giriş videosu yedekleri (siteye yalnızca assets/intro.mp4 girer)
+assets/intro_blender.mp4
+assets/intro_site-videosu.mp4
+assets/intro_render*
+
+# Sistem dosyaları
+Thumbs.db
+.DS_Store

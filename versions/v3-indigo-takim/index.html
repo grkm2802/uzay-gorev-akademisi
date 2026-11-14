@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Misyon Akademisi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="in-intro">
+
+<header id="siteHeader">
+  <div class="bar-in">
+    <strong class="brand">Misyon Akademisi</strong>
+    <span class="crumb">Görev 1: Öğrenci CubeSat'i</span>
+  </div>
+</header>
+
+<!-- 1) GİRİŞ VİDEOSU -->
+<section id="intro" class="screen active">
+  <video id="introVideo" playsinline preload="auto" src="assets/intro.mp4"></video>
+
+  <!-- Video dosyası yoksa gösterilen yedek -->
+  <div id="introFallback" class="center hidden">
+    <h1>Misyon Akademisi</h1>
+    <p>Giriş videosu henüz eklenmedi.<br>assets/intro.mp4 dosyasını koy.</p>
+  </div>
+
+  <!-- Tarayıcı sesli oynatmayı tıklama olmadan engeller -->
+  <div id="startOverlay" class="center">
+    <h1>Misyon Akademisi</h1>
+    <p>Uzay aracı tasarlayan bir stajyer mühendisin ilk günü.</p>
+    <button id="startBtn" class="btn">Başla</button>
+  </div>
+
+  <button id="skipBtn" class="btn ghost skip hidden">Atla</button>
+</section>
+
+<!-- 2) GÖREV BRİFİNGİ -->
+<section id="brief" class="screen">
+  <div class="hero">
+    <div class="wrap brief">
+      <div class="brief-text">
+        <h1>Öğrenci CubeSat'i</h1>
+        <div class="bubble">
+          <span class="badge">Prof.</span>
+          <p id="dialogText"></p>
+        </div>
+        <div class="brief-actions"><button id="toDesign" class="btn sun">Tek başıma oyna</button><button id="toTeam" class="btn ghost">Takımla oyna</button></div>
+      </div>
+      <div id="craftBrief" class="craft assemble"></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="ticket">
+      <h2>Görev kuralların</h2>
+      <p class="rules">Bütçen <mark>3,2 milyon $</mark>. Uydun en fazla <mark>14 kg</mark> olabilir.
+        En az <mark>40 bilim puanı</mark> topla ve <mark>6 ay</mark> dayansın.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2b) TAKIM LOBİSİ -->
+<section id="team" class="screen">
+  <div class="wrap">
+    <h1>Takımla oyna</h1>
+    <p class="lead">En fazla 4 kişi. Her rol uydunun bir bölümünü seçer ve gizli bir hedefi vardır. Hedefler birbiriyle çatışabilir, hepsini birden tutturmak için konuşmanız gerekir.</p>
+    <p id="teamMsg" class="teammsg"></p>
+    <div id="teamEntry">
+      <label class="field"><span>Adın</span><input id="teamName" maxlength="20" placeholder="Takımda görünecek ad" autocomplete="off"></label>
+      <div class="entry-grid">
+        <div class="entry-box"><h3>Oda kur</h3><p>Bir kod alırsın, arkadaşların katılır.</p><button id="teamCreate" class="btn">Oda kur</button></div>
+        <div class="entry-box"><h3>Odaya katıl</h3><label class="field"><span>Oda kodu</span><input id="teamCode" maxlength="4" placeholder="ABCD" autocomplete="off"></label><button id="teamJoin" class="btn">Katıl</button></div>
+        <div class="entry-box"><h3>Aynı ekranda</h3><p>Tek cihazı sırayla devredin. İnternet gerekmez.</p><button id="teamLocal" class="btn ghost">Aynı ekranda başla</button></div>
+      </div>
+    </div>
+    <div id="teamRoom" class="hidden"></div>
+    <div class="actions"><button id="teamBack" class="btn ghost">Geri</button></div>
+  </div>
+</section>
+
+<!-- 3) TASARIM ODASI -->
+<section id="design" class="screen">
+  <div class="wrap wide">
+    <div class="design-head">
+      <div>
+        <h1>Tasarım odası</h1>
+        <p class="lead">Seç, şemayı izle. Kaynakların bitmesin.</p>
+      </div>
+      <button id="backBrief" class="btn ghost">Brifinge dön</button>
+    </div>
+    <div id="teamBar" class="teambar hidden"></div>
+    <div class="layout">
+      <div id="options"></div>
+      <aside id="rail">
+        <div id="craftDesign" class="craft"></div>
+        <div id="side"></div>
+        <div id="teamPanel" class="hidden"></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- 4) FIRLATMA VE GÖREV -->
+<section id="flight" class="screen">
+  <div class="wrap wide">
+    <div class="design-head">
+      <div>
+        <h1 id="flightTitle">Fırlatma</h1>
+        <p class="lead" id="flightStatus"></p>
+      </div>
+      <div class="head-actions">
+        <button id="skipFlight" class="btn ghost">Atla</button>
+        <button id="flightBack" class="btn ghost">Tasarıma dön</button>
+      </div>
+    </div>
+    <div class="flight-grid">
+      <div class="flight-left">
+        <div id="launchStage" class="craft launch"></div>
+        <div id="craftFlight" class="craft hidden"></div>
+      </div>
+      <ol id="flightLog" class="flightlog"></ol>
+    </div>
+    <section id="report" class="report hidden"></section>
+  </div>
+</section>
+
+<footer id="siteFooter">NASA Space Apps Challenge 2026 için yapıldı.</footer>
+
+<script src="js/data.js"></script>
+<script src="js/design.js"></script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="js/craft.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/team.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
